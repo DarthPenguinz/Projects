@@ -1,4 +1,5 @@
 from tkinter import *
+from tkmacosx import Button
 import random
 from timeit import default_timer as timer
 
@@ -200,13 +201,13 @@ def cheat():
 #GAME Code
 
 #intro items
-startbutton = Button(root, text= "Lets Play!" , padx = 30, pady = 30,command=instructions,fg="red",bg="black")
-startlabel = Label(root, text="Welcome to Mathematics 101! Here you will practice solving different mathematic equations and improve your calculation skills!")
+startbutton = Button(root, text= "Lets Play!" ,command=instructions,borderless = 1)
+startlabel = Label(root, text="Welcome to Mathematics 101! Here you will practice solving different mathematic equations and improve your calculation skills!",bg="#808080")
 
 
 #instruction items
-Text = Label(root,text="Solve each question and input your answers rounded off to 2 decimal places(ONLY INPUT NUMBERS). \neg. 3.15923 should be entered as 3.16")
-Begin = Button(root,text = "Click to begin!",command = displaylevel)
+Text = Label(root,text="Solve each question and input your answers rounded off to 2 decimal places(ONLY INPUT NUMBERS). \neg. 3.15923 should be entered as 3.16",bg="#808080")
+Begin = Button(root,text = "Click to begin!",command = displaylevel,borderless = 1)
 
 #question items
 quesmain = StringVar()
@@ -225,26 +226,28 @@ score.set(0)
 level.set(1)
 
 #Define each widget 
-qsword = Label(root,text="Question:")
-qslabel = Label(root,textvariable = quesmain)
-scorelabel = Label(root, textvariable=  score)
-levellabel = Label(root, textvariable= level)
-answer = Entry(root, width= 30,borderwidth=1)
-wordans = Label(root,textvariable=textabovebox)
-submit = Button(root, text = "Submit" ,padx = 30, pady = 30,command=checkans)
-scorewordlabel = Label(root,text="Score:")
-levelwordlabel = Label(root,text="Level:")
-endgamelabel = Label(root,text = "Congratulations! You have finished all the levels of the game! \n What would you like to do next?")
-restartbutton = Button(root,text="Play Again!",command = playagain)
-endgamebutton = Button(root,text="Quit Game",command=quitgame)
-hintbutton = Button(root,text="Hint?",command=hint)
-cheatbutton = Button(root, text="Cheat", command=cheat)
+qsword = Label(root,text="Question:",bg="#808080")
+qslabel = Label(root,textvariable = quesmain,bg="#808080")
+scorelabel = Label(root, textvariable=  score,bg="#808080")
+levellabel = Label(root, textvariable= level,bg="#808080")
+answer = Entry(root, width= 30,borderwidth = 0)
+wordans = Label(root,textvariable=textabovebox,bg="#808080")
+submit = Button(root, text = "Submit" ,padx = 0, pady = 0,command=checkans,borderless = 1)
+scorewordlabel = Label(root,text="Score:",bg="#808080")
+levelwordlabel = Label(root,text="Level:",bg="#808080")
+endgamelabel = Label(root,text = "Congratulations! You have finished all the levels of the game! \n What would you like to do next?",bg="#808080")
+restartbutton = Button(root,text="Play Again!",command = playagain,borderless = 1)
+endgamebutton = Button(root,text="Quit Game",command=quitgame,borderless = 1)
+hintbutton = Button(root,text="Hint?",command=hint,borderless = 1)
+cheatbutton = Button(root, text="Cheat", command=cheat,borderless = 1)
 
 #Game Start
 intro()
     
 root.title("Simple Math Game")
 
-root.geometry("1000x500+200+130")
+root.configure(bg="grey")
+
+root.geometry("800x300+200+130")
 
 root.mainloop()
