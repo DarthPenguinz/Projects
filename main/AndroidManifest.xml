@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.1D_Hawker_Helper"
+        tools:targetApi="31">
+        <activity
+            android:name=".HomePage"
+            android:exported="true"
+            android:theme="@style/Theme.1D_Hawker_Helper.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".IngredientUI.IngredientListActivity"
+            android:exported="false"
+            android:label="Ingredient List"
+            android:windowSoftInputMode="adjustPan"/>
+
+        <activity
+            android:name=".RecipeUI.RecipeListActivity"
+            android:label="Recipe List"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
+
+        <activity
+            android:name=".RecipeUI.AddRecipe.AddRecipeNameActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".RecipeUI.AddRecipe.AddRecipeIngredientActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".RecipeUI.AddRecipe.AddRecipeAddIngredientActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".RecipeUI.AddRecipe.AddRecipeStepsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".RecipeUI.RecipeDetailActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".RecipeUI.EditRecipe.RecipeEditActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".RecipeUI.EditRecipe.RecipeEditIngredientActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".RecipeUI.EditRecipe.RecipeEditStepsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
+
+        <activity
+            android:name=".AddOrderUI.AddOrderActivity"
+            android:label="New Order"
+            android:exported="false"/>
+
+        <activity
+            android:name=".ViewOrderUI.ViewOrderActivity"
+            android:label="Current Orders"
+            android:exported="false"/>
+        <activity
+            android:name=".RecipeUI.EditRecipe.RecipeEditPriceActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".TransactionHistoryUI.ViewTransactionHistoryActivity"
+            android:label="Transactions"
+            android:exported="false"/>
+
+        <activity
+            android:name=".RecipeUI.RecipeSelectIngredientActivity"
+            android:exported="false"/>
+
+
+    </application>
+
+</manifest>
