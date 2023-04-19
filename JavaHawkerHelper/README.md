@@ -1,0 +1,1 @@
+The provided code only includes the Java files, does not include res folder etc. 
