@@ -1,0 +1,19 @@
+module shifter (
+    input a[16],
+    input b[4],
+    input alufn[6],
+    output out[16]
+  ) {
+  // Shifter unit
+  
+  always {
+    case(alufn) {
+      b100000: out = a << b;
+      b100001: out = a >> b;
+      b100011: out = $signed(a) >>> b;
+      b100010: out = a << (16 - b) | a >> b; // Circular Shift Right (CSR)
+      b100100: out = a << b | a >> (16 - b); // Circular Shift Left (CSL)
+      default: out = a;
+    }
+  }
+}

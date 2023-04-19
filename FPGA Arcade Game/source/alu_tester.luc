@@ -1,0 +1,440 @@
+module alu_tester (
+    input clk,  // clock
+    input rst,  // reset
+    input a_switch, // show A
+    input b_switch, // show B
+    input alufn_switch, // show ALUFN
+    input flip_switch, // flip MSB of B
+    output out[20] // 16bit output 3bit zvn 1bit right/wrong
+  ) {
+  // module for automatic testing of ALU
+
+    .clk(clk), .rst(rst) {
+    fsm testAluFsm = {ADD, SUB, MUL, AND, OR, XOR, A, B, SHL, SHR, SRA, CSR, CSL, CMPEQ, CMPLT, CMPLE};
+    dff case_number[8]; // stores case number to use for rom
+    dff alufn[6]; // ALUFN of current case
+    dff led[20];
+    dff counter[29]; // 29 bit counter, we go to next case when 29th bit (bit 28) is 0, acts as frequency divider
+    }
+    // stores what A/B to use, we have 32 bits, 16 MSBs to store A, 16 LSBs to store B
+    const CASE = {
+      // test 153 - 149 (CMPLE)
+      32hFFFFFFFF, 32hFFFF0000, 32hFF0000FF, 32h0000FFFF, 32h00000000,
+      // test 148 - 144 (CMPLT)
+      32hFFFFFFFF, 32hFFFF0000, 32hFF0000FF, 32h0000FFFF, 32h00000000,
+      // test 143 - 139 (CMPEQ)
+      32hFFFFFFFF, 32hFFFF0000, 32hFF0000FF, 32h0000FFFF, 32h00000000,
+      // test 138 - 123 (CSL)
+      32hFFFE000F, 32hFFFE000E, 32hFFFE000D, 32hFFFE000C, 32hFFFE000B, 32hFFFE000A, 32hFFFE0009, 32hFFFE0008, 32hFFFE0007, 32hFFFE0006, 32hFFFE0005, 32hFFFE0004, 32hFFFE0003, 32hFFFE0002, 32hFFFE0001, 32h00000000,
+      // test 122 - 107 (CSR)
+      32h7FFF000F, 32h7FFF000E, 32h7FFF000D, 32h7FFF000C, 32h7FFF000B, 32h7FFF000A, 32h7FFF0009, 32h7FFF0008, 32h7FFF0007, 32h7FFF0006, 32h7FFF0005, 32h7FFF0004, 32h7FFF0003, 32h7FFF0002, 32h7FFF0001, 32h00000000,
+      // test 106 - 92 (SRA, +ve MSB)
+      32h4000000F, 32h4000000E, 32h4000000D, 32h4000000C, 32h4000000B, 32h4000000A, 32h40000009, 32h40000008, 32h40000007, 32h40000006, 32h40000005, 32h40000004, 32h40000003, 32h40000002, 32h40000001,
+      // test 91 - 77 (SRA, -ve MSB)
+      32h8000000F, 32h8000000E, 32h8000000D, 32h8000000C, 32h8000000B, 32h8000000A, 32h80000009, 32h80000008, 32h80000007, 32h80000006, 32h80000005, 32h80000004, 32h80000003, 32h80000002, 32h80000001, 32h00000000,
+      // test 75 - 60 (SHR)
+      32h8000000F, 32h8000000E, 32h8000000D, 32h8000000C, 32h8000000B, 32h8000000A, 32h80000009, 32h80000008, 32h80000007, 32h80000006, 32h80000005, 32h80000004, 32h80000003, 32h80000002, 32h80000001, 32h00000000,
+      // test 59 - 44 (SHL)
+      32h0001000F, 32h0001000E, 32h0001000D, 32h0001000C, 32h0001000B, 32h0001000A, 32h00010009, 32h00010008, 32h00010007, 32h00010006, 32h00010005, 32h00010004, 32h00010003, 32h00010002, 32h00010001, 32h00000000,
+      // test 43 - 39 (B)
+      32hFFFFFFFF, 32hFFFF0000, 32hFF0000FF, 32h0000FFFF, 32h00000000,
+      // test 38 - 34 (A)
+      32hFFFFFFFF, 32hFFFF0000, 32hFF0000FF, 32h0000FFFF, 32h00000000,
+      // test 33 - 29 (XOR)
+      32hFFFFFFFF, 32hFFFF0000, 32hFF0000FF, 32h0000FFFF, 32h00000000,
+      // test 28 - 25 (OR)
+      32hFFFFFFFF, 32hFFFF0000, 32hFF0000FF, 32h0000FFFF, 32h00000000,
+      // test 24 - 19 (AND)
+      32hFFFFFFFF, 32hFFFF0000, 32hFF0000FF, 32h0000FFFF, 32h00000000,
+      // test 18 - 14 (MUL)
+      32hFFFFFFFF, 32hFFFF0003, 32h0002FFFF, 32h0002000F, 32h00000000,
+      // test 13 - 7 (SUB)
+      32hFFFFFFFF, 32h80000001, 32hFFFF0001, 32h7FFF8000, 32h0001FFFF, 32h00010001, 32h00000000,
+      // test 6 - 0 (ADD)
+      32h80008000, 32hFFFFFFFF, 32h80000001, 32h0001FFFF, 32h7FFF7FFF, 32h00010001, 32h00000000
+    };
+    // Correct Output
+    const ANSWERS = {
+      // test 153 - 149 (CMPLE)
+      16h0001, 16h0001, 16h0001, 16h0000, 16h0001,
+      // test 148 - 144 (CMPLT)
+      16h0000, 16h0001, 16h0001, 16h0000, 16h0000,
+      // test 143 - 139 (CMPEQ)
+      16h0001, 16h0000, 16h0000, 16h0000, 16h0001,
+      // test 138 - 123 (CSL)
+      16h7FFF, 16hBFFF, 16hDFFF, 16hEFFF, 16hF7FF, 16hFBFF, 16hFDFF, 16hFEFF, 16hFF7F, 16hFFBF, 16hFFDF, 16hFFEF, 16hFFF7, 16hFFFB, 16hFFFD, 16h0000,
+      // test 122 - 107 (CSR)
+      16hFFFE, 16hFFFD, 16hFFFB, 16hFFF7, 16hFFEF, 16hFFDF, 16hFFBF, 16hFF7F, 16hFEFF, 16hFDFF, 16hFBFF, 16hF7FF, 16hEFFF, 16hDFFF, 16hBFFF, 16h0000,
+      // test 106 - 92 (SHR)
+      16h0000, 16h0001, 16h0002, 16h0004, 16h0008, 16h0010, 16h0020, 16h0040, 16h0080, 16h0100, 16h0200, 16h0400, 16h0800, 16h1000, 16h2000,
+      // test 91 - 76 (SRA, -ve MSB)
+      16hFFFF, 16hFFFE, 16hFFFC, 16hFFF8, 16hFFF0, 16hFFE0, 16hFFC0, 16hFF80, 16hFF00, 16hFE00, 16hFC00, 16hF800, 16hF000, 16hE000, 16hC000, 16h0000,
+      // test 75 - 60 (SHR)
+      16h0001, 16h0002, 16h0004, 16h0008, 16h0010, 16h0020, 16h0040, 16h0080, 16h0100, 16h0200, 16h0400, 16h0800, 16h1000, 16h2000, 16h4000, 16h0000,
+      // test 59 - 44 (SHL)
+      16h8000, 16h4000, 16h2000, 16h1000, 16h0800, 16h0400, 16h0200, 16h0100, 16h0080, 16h0040, 16h0020, 16h0010, 16h0008, 16h0004, 16h0002, 16h0000,
+      // test 43 - 39 (B)
+      16hFFFF, 16h0000, 16h00FF, 16hFFFF, 16h0000,
+      // test 38 - 34 (A)
+      16hFFFF, 16hFFFF, 16hFF00, 16h0000, 16h0000,
+      // test 33 - 29 (XOR)
+      16h0000, 16hFFFF, 16hFFFF, 16hFFFF, 16h0000,
+      // test 28 - 24 (OR)
+      16hFFFF, 16hFFFF, 16hFFFF, 16hFFFF, 16h0000,
+      // test 23 - 19 (AND)
+      16hFFFF, 16h0000, 16h0000, 16h0000, 16h0000,
+      // test 18 - 14 (MUL)
+      16h0001, 16hFFFD, 16hFFFE, 16h0001E, 16h000,
+      // test 13 - 7 (SUB)
+      16h0000, 16h7FFF, 16hFFFE, 16hFFFF, 16h0002, 16h0000, 16h000,
+      // test 6 - 0 (ADD)
+      16h0000, 16hFFFE, 16h8001, 16h0000, 16hFFFE, 16h0002, 16h000
+    };
+    alu alu;
+    sig alu_out[16];
+  
+  always {
+  
+    if (flip_switch) {
+    // Force ALU output to be 0
+        alu_out = 0;
+    } else {
+      alu_out = alu.out;
+    }
+    
+    if (a_switch) {
+    // show A
+      led.d[15:0] = CASE[case_number.q][31:16];
+    } else if (b_switch) {
+    // show B
+      led.d[15:0] = CASE[case_number.q][15:0];
+    } else if (alufn_switch) {
+    // show ALUFN
+      led.d[15:0] = alufn.q;
+    } else {
+      led.d[15:0] = alu_out;
+      led.d[18:16] = alu.zvn;
+    }
+    
+    if (alu_out != ANSWERS[case_number.q]) {
+      led.d[19] = 1;
+    } else {
+      led.d[19] = 0;
+    }
+    
+    alu.a = CASE[case_number.q][31:16];
+    alu.b = CASE[case_number.q][15:0];
+    alu.alufn = alufn.q;
+    out = led.q;
+ 
+    case(testAluFsm.q) {
+      testAluFsm.ADD:
+      // test ADD
+        alufn.d = b000000;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 6) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.SUB;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.ADD;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.ADD;
+        }
+      testAluFsm.SUB:
+      // test SUB
+        alufn.d = b000001;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 13) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.MUL;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.SUB;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.SUB;
+        }
+      testAluFsm.MUL:
+      // test MUL
+        alufn.d = b000010;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 18) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.AND;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.MUL;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.MUL;
+        }
+      testAluFsm.AND:
+      // test AND
+        alufn.d = b011000;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 23) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.OR;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.AND;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.AND;
+        }
+      testAluFsm.OR:
+      // test OR
+        alufn.d = b011110;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 28) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.XOR;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.OR;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.OR;
+        }
+      testAluFsm.XOR:
+      // test XOR
+        alufn.d = b010110;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 33) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.A;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.XOR;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.XOR;
+        }
+      testAluFsm.A:
+      // test A
+        alufn.d = b011010;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 38) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.B;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.A;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.A;
+        }
+      testAluFsm.B:
+      // test B
+        alufn.d = b011100;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 43) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.SHL;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.B;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.B;
+        }
+      testAluFsm.SHL:
+      // test SHL
+        alufn.d = b100000;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 59) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.SHR;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.SHL;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.SHL;
+        }
+      testAluFsm.SHR:
+      // test SHR
+        alufn.d = b100001;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 75) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.SRA;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.SHR;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.SHR;
+        }
+      testAluFsm.SRA:
+      // test SRA
+        alufn.d = b100011;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 106) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.CSR;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.SRA;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.SRA;
+        }
+      testAluFsm.CSR:
+      // test CSR
+        alufn.d = b100010;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 122) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.CSL;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.CSR;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.CSR;
+        }
+      testAluFsm.CSL:
+      // test CSL
+        alufn.d = b100100;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 138) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.CMPEQ;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.CSL;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.CSL;
+        }
+      testAluFsm.CMPEQ:
+      // test CMPEQ
+        alufn.d = b110011;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 143) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.CMPLT;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.CMPEQ;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.CMPEQ;
+        }
+      testAluFsm.CMPLT:
+      // test CMPLT
+        alufn.d = b110101;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 148) {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.CMPLE;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.CMPLT;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.CMPLT;
+        }
+      testAluFsm.CMPLE:
+      // test CMPLE
+        alufn.d = b110111;
+        
+        if (counter.q[28] == b1){
+	         counter.d = 29b0;
+          if (led.q[19] != 1) {
+            if (case_number.q == 153) {
+              case_number.d = 0;
+              testAluFsm.d = testAluFsm.ADD;
+            } else {
+              case_number.d = case_number.q + 1;
+              testAluFsm.d = testAluFsm.CMPLE;
+            }
+          }
+        } else{
+	         counter.d = counter.q + 1;
+          testAluFsm.d = testAluFsm.CMPLE;
+        }
+      
+      default:
+        case_number.d = 0;
+    }
+  }
+}

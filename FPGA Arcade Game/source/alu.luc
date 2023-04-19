@@ -1,0 +1,57 @@
+module alu (
+    input a[16],
+    input b[16],
+    input alufn[6],
+    output out[16],
+    output zvn[3]
+  ) {
+  // Combine units into ALU
+
+  adder adderUnit;
+  compare compareUnit;
+  bool boolUnit;
+  shifter shifterUnit;
+  
+  sig z;
+  sig v;
+  sig n;
+  
+  always {
+    adderUnit.alufn = alufn;
+    adderUnit.a = a;
+    adderUnit.b = b;
+    
+    z = adderUnit.z;
+    v = adderUnit.v;
+    n = adderUnit.n;
+    
+    zvn[0] = z;
+    zvn[1] = v;
+    zvn[2] = n;
+    
+    compareUnit.alufn = alufn;
+    compareUnit.z = z;
+    compareUnit.v = v;
+    compareUnit.n = n;
+    
+    boolUnit.alufn = alufn;
+    boolUnit.a = a;
+    boolUnit.b = b;
+    
+    shifterUnit.alufn = alufn;
+    shifterUnit.a = a;
+    shifterUnit.b = b[3:0];
+    
+    case(alufn[5:4]) {
+      b00: out = adderUnit.out;
+      b01: out = boolUnit.out;
+      b10: out = shifterUnit.out;
+      b11: out = compareUnit.out;
+      default: out = 16b0;
+    }
+    
+    if (alufn == b000010) {
+      out = a * b;
+    }
+  }
+}

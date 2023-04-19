@@ -1,0 +1,19 @@
+module buttons_manager (
+    input clk,  // clock
+    input rst,  // reset
+    input buttons[16],
+    output out[16]
+  ) {
+  .clk(clk) {
+    button_conditioner buttonconditioner[16];
+    edge_detector buttonedge[16](#RISE(1), #FALL(0));
+  }
+  
+
+  always {
+    buttonconditioner.in = buttons;
+    
+    buttonedge.in = buttonconditioner.out;
+    out = buttonedge.out;
+  }
+}

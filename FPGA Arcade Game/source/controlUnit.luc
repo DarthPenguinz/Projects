@@ -1,0 +1,418 @@
+module controlUnit (
+    input clk,  // clock
+    input rst,  // reset
+    input slwclk,
+    input regfile_datain[16], // reading from read_address_b for branching
+    
+    output alufn[6],
+    output asel[2],
+    output bsel[2],
+    output write_1[4], // write address 1-9
+    output write_2[4],
+    output write_3[4],
+    output write_4[4],
+    // output write_5[4],
+    // output write_6[4],
+    // output write_7[4],
+    // output write_8[4],
+    // output write_9[4],
+    output we_1, // write_enable 1-9
+    output we_2,
+    output we_3,
+    output we_4,
+    // output we_5,
+    // output we_6,
+    // output we_7,
+    // output we_8,
+    // output we_9,
+    output read_a[4], // read address a-j
+    output read_b[4],
+    output read_c[4],
+    output read_d[4],
+    output read_e[4],
+    // output read_f[4],
+    // output read_g[4],
+    // output read_h[4],
+    // output read_i[4],
+    // output read_j[4],
+    
+    output sev_seg_incr,
+    output sev_seg_rst
+  ) {
+
+  .clk(clk) {
+    fsm game_fsm = {
+      IDLE,
+      // BUTTON_PRESS,
+      CMPEQ_LAST_ROW_BUTTON,
+      BRANCH_LAST_ROW_BUTTON,
+      SUB_LIVE,
+      CMPEQ_LIVE,
+      BRANCH_LIVE,
+      CMPLE_CSL_LEVEL,
+      BRANCH_CSL_LEVEL,
+      CSL_ROW_1,
+      CSL_ROW_2,
+      CSL_ROW_3,
+      CSL_ROW_4,
+      // CSL_ROW_5,
+      // CSL_ROW_6,
+      // CSL_ROW_7,
+      // CSL_ROW_8,
+      // CSL_ROW_9,
+      SHIFT_ROW,
+      CMPEQ_COUNTER,
+      BRANCH_COUNTER,
+      SUB_COUNTER,
+      ADD_LEVEL,
+      ADD_ROW,
+      RESET_BUTTON,
+      RESET_LEVEL,
+      RESET_ROWS,
+      RESET_LAST_ROW,
+      RESET_COUNTER,
+      RESET_LIVES,
+      GAME_OVER
+    };
+  }
+  
+  always {
+    // standard setting
+    alufn = 0;
+    asel = 0; 
+    bsel = 0;
+    we_1 = 0;
+    we_2 = 0;
+    we_3 = 0;
+    we_4 = 0;
+    // we_5 = 0;
+    // we_6 = 0;
+    // we_7 = 0;
+    // we_8 = 0;
+    // we_9 = 0;
+    write_1 = b1111;
+    write_2 = b1111;
+    write_3 = b1111;
+    write_4 = b1111;
+    // write_5 = b1111;
+    // write_6 = b1111;
+    // write_7 = b1111;
+    // write_8 = b1111;
+    // write_9 = b1111;
+    read_a = b0000;
+    read_b = b0000;
+    read_c = b0000;
+    read_d = b0000;
+    read_e = b0000;
+    // read_f = b0000;
+    // read_g = b0000;
+    // read_h = b0000;
+    // read_i = b0000;
+    // read_j = b0000;
+    sev_seg_incr = 0;
+    sev_seg_rst = 0;
+    
+    if (rst) {
+      game_fsm.d = game_fsm.RESET_LEVEL;
+      sev_seg_rst = 1;
+    } else {
+      case(game_fsm.q) {
+        game_fsm.IDLE:
+          alufn = b011110; // OR
+          asel = b10;
+          bsel = b00;
+          we_1 = 1;
+          read_b = h2;
+          write_1 = h2;
+          if (slwclk == 1) {
+            game_fsm.d = game_fsm.CMPEQ_LAST_ROW_BUTTON;
+          } else {
+            game_fsm.d = game_fsm.IDLE;
+          }
+          
+        game_fsm.CMPEQ_LAST_ROW_BUTTON:
+          alufn = b110011;
+          asel = b00;
+          bsel = b00;
+          we_1 = 1;
+          read_a = h2;
+          read_b = h7;
+          write_1 = h9;
+          game_fsm.d = game_fsm.BRANCH_LAST_ROW_BUTTON;
+          
+        game_fsm.BRANCH_LAST_ROW_BUTTON:
+          read_b = h9;
+          if (regfile_datain[0]) {
+            game_fsm.d = game_fsm.CMPLE_CSL_LEVEL;
+          } else {
+            game_fsm.d = game_fsm.SUB_LIVE;
+          }
+          
+        game_fsm.SUB_LIVE:
+          alufn = b000001;
+          asel = b00;
+          bsel = b10;
+          we_1 = b1;
+          read_a = h1;
+          write_1 = h1;
+          game_fsm.d = game_fsm.CMPEQ_LIVE;
+          
+        game_fsm.CMPEQ_LIVE:
+          alufn = b110011;
+          bsel = b01;
+          we_1 = 1;
+          read_a = h1;
+          write_1 = h9;
+          game_fsm.d = game_fsm.BRANCH_LIVE;
+          
+        game_fsm.BRANCH_LIVE:
+          read_b = h9;
+          if (regfile_datain[0]) {
+            game_fsm.d = game_fsm.GAME_OVER;
+          } else {
+            game_fsm.d = game_fsm.CMPLE_CSL_LEVEL;
+          }
+          
+        game_fsm.CMPLE_CSL_LEVEL:
+          alufn = b110111;
+          asel = b01;
+          we_1 = 1;
+          read_b = h0;
+          write_1 = h9;
+          game_fsm.d = game_fsm.BRANCH_CSL_LEVEL;
+          
+        game_fsm.BRANCH_CSL_LEVEL:
+          read_b = h9;
+          if (regfile_datain[0]) {
+            game_fsm.d = game_fsm.CSL_ROW_1;
+          } else {
+            game_fsm.d = game_fsm.SHIFT_ROW;
+          }
+          
+        game_fsm.CSL_ROW_1:
+          alufn = b100100;
+          bsel = b10;
+          we_1 = 1;
+          read_a = h3;
+          write_1 = h3;
+          game_fsm.d = game_fsm.CSL_ROW_2;
+          
+          
+        game_fsm.CSL_ROW_2:
+          alufn = b100100;
+          bsel = b10;
+          we_1 = 1;
+          read_a = h4;
+          write_1 = h4;
+          game_fsm.d = game_fsm.CSL_ROW_3;
+          
+        game_fsm.CSL_ROW_3:
+          alufn = b100100;
+          bsel = b10;
+          we_1 = 1;
+          read_a = h5;
+          write_1 = h5;
+          game_fsm.d = game_fsm.CSL_ROW_4;
+          
+        game_fsm.CSL_ROW_4:
+          alufn = b100100;
+          bsel = b10;
+          we_1 = 1;
+          read_a = h6;
+          write_1 = h6;
+          game_fsm.d = game_fsm.SHIFT_ROW;
+        /**
+        game_fsm.CSL_ROW_5:
+          alufn = b100100;
+          bsel = b010;
+          we_1 = 1;
+          read_a = h7;
+          write_1 = h7;
+          game_fsm.d = game_fsm.CSL_ROW_6;
+          
+        game_fsm.CSL_ROW_6:
+          alufn = b100100;
+          bsel = b010;
+          we_1 = 1;
+          read_a = h8;
+          write_1 = h8;
+          game_fsm.d = game_fsm.CSL_ROW_7;
+          
+        game_fsm.CSL_ROW_7:
+          alufn = b100100;
+          bsel = b010;
+          we_1 = 1;
+          read_a = h9;
+          write_1 = h9;
+          game_fsm.d = game_fsm.CSL_ROW_8;
+          
+        game_fsm.CSL_ROW_8:
+          alufn = b100100;
+          bsel = b010;
+          we_1 = 1;
+          read_a = hA;
+          write_1 = hA;
+          game_fsm.d = game_fsm.CSL_ROW_9;
+          
+        game_fsm.CSL_ROW_9:
+          alufn = b100100;
+          bsel = b010;
+          we_1 = 1;
+          read_a = hB;
+          write_1 = hB;
+          game_fsm.d = game_fsm.SHIFT_ROW;
+        **/
+        game_fsm.SHIFT_ROW:
+          alufn = b011010;
+          asel = b00;
+          we_1 = 1;
+          we_2 = 1;
+          we_3 = 1;
+          we_4 = 1;
+          // we_5 = 1;
+          // we_6 = 1;
+          // we_7 = 1;
+          // we_8 = 1;
+          // we_9 = 1;
+          read_a = h3;
+          read_c = h4;
+          read_d = h5;
+          read_e = h6;
+          // read_f = h7;
+          // read_g = h8;
+          // read_h = h9;
+          // read_i = hA;
+          // read_j = hB;
+          write_1 = h4;
+          write_2 = h5;
+          write_3 = h6;
+          write_4 = h7;
+          // write_5 = h8;
+          // write_6 = h9;
+          // write_7 = hA;
+          // write_8 = hB;
+          // write_9 = hC;
+          game_fsm.d = game_fsm.CMPEQ_COUNTER;
+          
+        game_fsm.CMPEQ_COUNTER:
+          alufn = b110011;
+          asel = b00;
+          bsel = b01;
+          we_1 = 1;
+          read_a = h8;
+          write_1 = h9;
+          game_fsm.d = game_fsm.BRANCH_COUNTER;
+          
+        game_fsm.BRANCH_COUNTER:
+          read_b = h9;
+          if (regfile_datain[0]) {
+            game_fsm.d = game_fsm.ADD_LEVEL;
+          } else {
+            game_fsm.d = game_fsm.SUB_COUNTER;
+          }
+          
+        game_fsm.SUB_COUNTER:
+          alufn = b000001;
+          asel = b00;
+          bsel = b10;
+          we_1 = b1;
+          read_a = h8;
+          write_1 = h8;
+          game_fsm.d = game_fsm.ADD_ROW;
+        
+        game_fsm.ADD_LEVEL:
+          alufn = b000000;
+          asel = b00;
+          bsel = b10;
+          we_1 = 1;
+          read_a = h0;
+          write_1 = h0;
+          sev_seg_incr = 1;
+          game_fsm.d = game_fsm.ADD_ROW;
+          
+        game_fsm.ADD_ROW:
+          alufn = b011010;
+          asel = b11;
+          we_1 = b1;
+          write_1 = h3;
+          game_fsm.d = game_fsm.RESET_BUTTON;
+          
+        game_fsm.RESET_BUTTON:
+          alufn = b011100;
+          bsel = b01;
+          we_1 = b1;
+          write_1 = h2;
+          game_fsm.d = game_fsm.IDLE;
+          
+        game_fsm.GAME_OVER:
+          if (rst) {
+            game_fsm.d = game_fsm.RESET_LEVEL;
+          } else {
+            game_fsm.d = game_fsm.GAME_OVER;
+          }
+          
+        game_fsm.RESET_LEVEL:
+          alufn = b011100;
+          bsel = b01;
+          we_1 = b1;
+          write_1 = h0;
+          sev_seg_rst = 1;
+          sev_seg_incr = 0;
+          game_fsm.d = game_fsm.RESET_ROWS;
+          
+        game_fsm.RESET_ROWS:
+          alufn = b011010;
+          bsel = b01;
+          we_1 = 1;
+          we_2 = 1;
+          we_3 = 1;
+          we_4 = 1;
+          // we_5 = 1;
+          // we_6 = 1;
+          // we_7 = 1;
+          // we_8 = 1;
+          // we_9 = 1;
+          read_a = h0;
+          read_c = h0;
+          read_d = h0;
+          read_e = h0;
+          // read_f = h0;
+          // read_g = h0;
+          // read_h = h0;
+          // read_i = h0;
+          // read_j = h0;
+          write_1 = h3;
+          write_2 = h4;
+          write_3 = h5;
+          write_4 = h6;
+          // write_5 = h7;
+          // write_6 = h8;
+          // write_7 = h9;
+          // write_8 = hA;
+          // write_9 = hB;
+          game_fsm.d = game_fsm.RESET_LAST_ROW;
+          
+        game_fsm.RESET_LAST_ROW:
+          alufn = b011100;
+          bsel = b01;
+          we_1 = b1;
+          write_1 = h7;
+          game_fsm.d = game_fsm.RESET_COUNTER;
+          
+        game_fsm.RESET_COUNTER:
+          alufn = b011010;
+          asel = b01;
+          we_1 = b1;
+          write_1 = h8;
+          game_fsm.d = game_fsm.RESET_LIVES;
+          
+        game_fsm.RESET_LIVES:
+          alufn = b011100;
+          bsel = b11;
+          we_1 = b1;
+          write_1 = h1;
+          game_fsm.d = game_fsm.RESET_BUTTON;
+      }
+    }
+  }
+}

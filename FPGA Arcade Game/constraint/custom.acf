@@ -1,0 +1,53 @@
+pin clk CLOCK;
+clock clk 100MHz;
+
+pin rst_n RESET;
+
+pin led[0] LED0;
+pin led[1] LED1;
+pin led[2] LED2;
+pin led[3] LED3;
+pin led[4] LED4;
+pin led[5] LED5;
+pin led[6] LED6;
+pin led[7] LED7;
+
+// flip the Tx/Rx lines
+pin usb_rx USB_TX;
+pin usb_tx USB_RX;
+
+pin led_row_1 C49;
+pin led_row_2 C46;
+pin led_row_3 C43;
+pin led_row_4 C40;
+pin led_row_5 C37;
+pin led_lives B2;
+
+pin input_buttons[0] A36 pulldown;
+pin input_buttons[1] A37 pulldown;
+pin input_buttons[2] A15 pulldown;
+pin input_buttons[3] A14 pulldown;
+pin input_buttons[4] A33 pulldown;
+pin input_buttons[5] A34 pulldown;
+pin input_buttons[6] A18 pulldown;
+pin input_buttons[7] A17 pulldown;
+pin input_buttons[8] A30 pulldown;
+pin input_buttons[9] A31 pulldown;
+pin input_buttons[10] A21 pulldown;
+pin input_buttons[11] A20 pulldown;
+pin input_buttons[12] A27 pulldown;
+pin input_buttons[13] A28 pulldown;
+pin input_buttons[14] A24 pulldown;
+pin input_buttons[15] A23 pulldown;
+
+pin sev_seg[0] A3;
+pin sev_seg[1] A6;
+pin sev_seg[2] A9;
+pin sev_seg[3] A12;
+pin sev_seg[4] A49;
+pin sev_seg[5] A46;
+pin sev_seg[6] A43;
+pin sev_seg_sel[0] A48;
+pin sev_seg_sel[1] A45;
+pin sev_seg_sel[2] A42;
+pin sev_seg_sel[3] A39;

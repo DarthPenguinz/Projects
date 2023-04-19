@@ -1,0 +1,68 @@
+module alu_usage (
+    input clk,  // clock
+    input rst,  // reset
+    input switches[16],
+    input button,
+    output out[20]
+  ) {
+  // module for manual input for ALU
+
+  .clk(clk), .rst(rst) {
+    dff a[16];
+    dff b[16];
+    dff alufn[6];
+    dff led[20];
+    fsm state = {INPUT_A, INPUT_B, INPUT_ALUFN, OUTPUT};
+  }  
+  alu alu;
+  
+  always {
+    case(state.q) {
+      state.INPUT_A:
+      // input A using dip switches
+        a.d = switches;
+        led.d = switches;
+        led.d[16] = 1;
+        if (button) {
+          state.d = state.INPUT_B;
+        } else {
+          state.d = state.INPUT_A;
+        }
+      state.INPUT_B:
+      // input B using dip switches
+        b.d = switches;
+        led.d = switches;
+        led.d[17] = 1;
+        if (button) {
+          state.d = state.INPUT_ALUFN;
+        } else {
+          state.d = state.INPUT_B;
+        }
+      state.INPUT_ALUFN:
+      // input ALUFN using dip switches
+        alufn.d = switches[5:0];
+        led.d = switches;
+        led.d[15:6] = 0;
+        led.d[18] = 1;
+        if (button) {
+          state.d = state.OUTPUT;
+        } else {
+          state.d = state.INPUT_ALUFN;
+        }
+      state.OUTPUT:
+      // show output on led
+        led.d[15:0] = alu.out;
+        led.d[18:16] = alu.zvn;
+        led.d[19] = 1;
+        if (button) {
+          state.d = state.INPUT_A;
+        } else {
+          state.d = state.OUTPUT;
+        }
+    }
+    alu.a = a.q;
+    alu.b = b.q;
+    alu.alufn = alufn.q;
+    out = led.q;
+  }
+}

@@ -1,0 +1,91 @@
+module slowclock (
+    input clk,  // clock
+    input rst,  // reset
+    input level[16],
+    output out
+  ) {
+  
+  .clk(clk) {
+    dff counter[29];
+  }
+  
+  always {
+    out = 0;
+    if (level < 10) {
+      if (counter.q[28:27] == b11) {
+        out = 1;
+        counter.d = 0;
+      } else {
+        counter.d = counter.q + 1;
+      }
+    } else if (level < 30) {
+      if (counter.q[28] == b1) {
+        out = 1;
+        counter.d = 0;
+      } else {
+        counter.d = counter.q + 1;
+      }
+    } else if (level < 50) {
+      if (counter.q[27:26] == b11) {
+        out = 1;
+        counter.d = 0;
+      } else {
+        counter.d = counter.q + 1;
+      }
+    } else if (level < 70) {
+      if (counter.q[26] == b1) {
+        out = 1;
+        counter.d = 0;
+      } else {
+        counter.d = counter.q + 1;
+      }
+    } else if (level < 90) {
+      if (counter.q[26:25] == b11) {
+        out = 1;
+        counter.d = 0;
+      } else {
+        counter.d = counter.q + 1;
+      }
+    } else {
+      if (counter.q[25] == b1) {
+        out = 1;
+        counter.d = 0;
+      } else {
+        counter.d = counter.q + 1;
+      }
+    }
+  }
+}
+/**
+  .clk(clk) {
+    counter slowClock(#SIZE(28), .rst(rst));
+    edge_detector slowClockEdge(#RISE(1), #FALL(0));
+  }
+
+  always {
+    out = slowClockEdge.out;
+    if (level < 10) {
+      slowClockEdge.in = slowClock.value[27]; // 0.74Hz
+    } else if (level < 20) {
+      slowClockEdge.in = slowClock.value[26];
+    } else if (level < 30) {
+      slowClockEdge.in = slowClock.value[25];
+    } else if (level < 40) {
+      slowClockEdge.in = slowClock.value[24];
+    } else if (level < 50) {
+      slowClockEdge.in = slowClock.value[23];
+    } else if (level < 60) {
+      slowClockEdge.in = slowClock.value[22];
+    } else if (level < 70) {
+      slowClockEdge.in = slowClock.value[21];
+    } else if (level < 80) {
+      slowClockEdge.in = slowClock.value[20];
+    } else if (level < 90) {
+      slowClockEdge.in = slowClock.value[19];
+    } else if (level < 100) {
+      slowClockEdge.in = slowClock.value[18];
+    } else {
+      slowClockEdge.in = slowClock.value[17];
+    }
+}
+**/

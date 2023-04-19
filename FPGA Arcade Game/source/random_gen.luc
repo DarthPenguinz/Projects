@@ -1,0 +1,177 @@
+module random_gen
+#(
+SEED = 128h843233523a613966423b622562592c62: SEED.WIDTH == 128 && SEED[95:0] != 0
+  ) (
+    input clk,  // clock
+    input rst,  // reset
+    output out[16]
+  ) {
+  .clk(clk){
+     dff seed[16]; //don't reset the seed because we don't want the same random number each time we press reset
+    edge_detector edge_detector_rng;
+    
+    .rst(rst){
+       pn_gen random_number;
+       counter slowerclock(#SIZE(1), #DIV(15));
+      }
+   }
+  always {
+    out = 16b0;
+    seed.d = seed.q + 1;
+    random_number.seed = seed.q;
+    edge_detector_rng.in = slowerclock.value;
+    random_number.next = edge_detector_rng.out;
+    
+    case(random_number.num[3:0]) {
+      0: out[0] = b1;
+      1: out[1] = b1;
+      2: out[2] = b1;
+      3: out[3] = b1;
+      4: out[4] = b1;
+      5: out[5] = b1;
+      6: out[6] = b1;
+      7: out[7] = b1;
+      8: out[8] = b1;
+      9: out[9] = b1;
+      10: out[10] = b1;
+      11: out[11] = b1;
+      12: out[12] = b1;
+      13: out[13] = b1;
+      14: out[14] = b1;
+      15: out[15] = b1;
+    }
+    
+    case(random_number.num[7:4]) {
+      0: out[0] = b1;
+      1: out[1] = b1;
+      2: out[2] = b1;
+      3: out[3] = b1;
+      4: out[4] = b1;
+      5: out[5] = b1;
+      6: out[6] = b1;
+      7: out[7] = b1;
+      8: out[8] = b1;
+      9: out[9] = b1;
+      10: out[10] = b1;
+      11: out[11] = b1;
+      12: out[12] = b1;
+      13: out[13] = b1;
+      14: out[14] = b1;
+      15: out[15] = b1;
+    }
+    case(random_number.num[11:8]) {
+      0: out[0] = b1;
+      1: out[1] = b1;
+      2: out[2] = b1;
+      3: out[3] = b1;
+      4: out[4] = b1;
+      5: out[5] = b1;
+      6: out[6] = b1;
+      7: out[7] = b1;
+      8: out[8] = b1;
+      9: out[9] = b1;
+      10: out[10] = b1;
+      11: out[11] = b1;
+      12: out[12] = b1;
+      13: out[13] = b1;
+      14: out[14] = b1;
+      15: out[15] = b1;
+    }
+    
+    case(random_number.num[15:12]) {
+      0: out[0] = b1;
+      1: out[1] = b1;
+      2: out[2] = b1;
+      3: out[3] = b1;
+      4: out[4] = b1;
+      5: out[5] = b1;
+      6: out[6] = b1;
+      7: out[7] = b1;
+      8: out[8] = b1;
+      9: out[9] = b1;
+      10: out[10] = b1;
+      11: out[11] = b1;
+      12: out[12] = b1;
+      13: out[13] = b1;
+      14: out[14] = b1;
+      15: out[15] = b1;
+    }
+    
+    case(random_number.num[19:16]) {
+      0: out[0] = b1;
+      1: out[1] = b1;
+      2: out[2] = b1;
+      3: out[3] = b1;
+      4: out[4] = b1;
+      5: out[5] = b1;
+      6: out[6] = b1;
+      7: out[7] = b1;
+      8: out[8] = b1;
+      9: out[9] = b1;
+      10: out[10] = b1;
+      11: out[11] = b1;
+      12: out[12] = b1;
+      13: out[13] = b1;
+      14: out[14] = b1;
+      15: out[15] = b1;
+    }
+    
+    case(random_number.num[23:20]) {
+      0: out[0] = b1;
+      1: out[1] = b1;
+      2: out[2] = b1;
+      3: out[3] = b1;
+      4: out[4] = b1;
+      5: out[5] = b1;
+      6: out[6] = b1;
+      7: out[7] = b1;
+      8: out[8] = b1;
+      9: out[9] = b1;
+      10: out[10] = b1;
+      11: out[11] = b1;
+      12: out[12] = b1;
+      13: out[13] = b1;
+      14: out[14] = b1;
+      15: out[15] = b1;
+    }
+    
+    case(random_number.num[27:24]) {
+      0: out[0] = b1;
+      1: out[1] = b1;
+      2: out[2] = b1;
+      3: out[3] = b1;
+      4: out[4] = b1;
+      5: out[5] = b1;
+      6: out[6] = b1;
+      7: out[7] = b1;
+      8: out[8] = b1;
+      9: out[9] = b1;
+      10: out[10] = b1;
+      11: out[11] = b1;
+      12: out[12] = b1;
+      13: out[13] = b1;
+      14: out[14] = b1;
+      15: out[15] = b1;
+    }
+    
+    case(random_number.num[31:28]) {
+      0: out[0] = b1;
+      1: out[1] = b1;
+      2: out[2] = b1;
+      3: out[3] = b1;
+      4: out[4] = b1;
+      5: out[5] = b1;
+      6: out[6] = b1;
+      7: out[7] = b1;
+      8: out[8] = b1;
+      9: out[9] = b1;
+      10: out[10] = b1;
+      11: out[11] = b1;
+      12: out[12] = b1;
+      13: out[13] = b1;
+      14: out[14] = b1;
+      15: out[15] = b1;
+    }
+   
+  }
+}

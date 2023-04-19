@@ -1,0 +1,133 @@
+module beta (
+    input clk,  // clock
+    input rst,  // reset
+    input buttons[16],
+    
+    output lives_output[16],
+    output row1[16],
+    output row2[16],
+    output row3[16],
+    output row4[16],
+    output row5[16],
+    /**
+    output row6[16],
+    output row7[16],
+    output row8[16],
+    output row9[16],
+    output row10[16],
+    **/
+    
+    output sev_seg_incr,
+    output sev_seg_rst
+  ) {
+  
+  alu game_alu;
+  
+  .clk(clk), .rst(rst){
+    slowclock slwclk;
+    controlUnit game_CU;
+    regFile game_regfile;
+    random_gen rng;
+  }
+  
+  sig inputAlu_a[16];
+  sig inputAlu_b[16];
+  
+  always {
+    // set up CU
+    game_CU.slwclk = slwclk.out;
+    game_CU.regfile_datain = game_regfile.out_b;
+    
+    // set up regFile
+    game_regfile.write_1 = game_CU.write_1;
+    game_regfile.write_2 = game_CU.write_2;
+    game_regfile.write_3 = game_CU.write_3;
+    game_regfile.write_4 = game_CU.write_4;
+    /**
+    game_regfile.write_5 = game_CU.write_5;
+    game_regfile.write_6 = game_CU.write_6;
+    game_regfile.write_7 = game_CU.write_7;
+    game_regfile.write_8 = game_CU.write_8;
+    game_regfile.write_9 = game_CU.write_9;
+    **/
+    
+    game_regfile.we_1 = game_CU.we_1;
+    game_regfile.we_2 = game_CU.we_2;
+    game_regfile.we_3 = game_CU.we_3;
+    game_regfile.we_4 = game_CU.we_4;
+    /**
+    game_regfile.we_5 = game_CU.we_5;
+    game_regfile.we_6 = game_CU.we_6;
+    game_regfile.we_7 = game_CU.we_7;
+    game_regfile.we_8 = game_CU.we_8;
+    game_regfile.we_9 = game_CU.we_9;
+    **/
+    
+    game_regfile.read_a = game_CU.read_a;
+    game_regfile.read_b = game_CU.read_b;
+    game_regfile.read_c = game_CU.read_c;
+    game_regfile.read_d = game_CU.read_d;
+    game_regfile.read_e = game_CU.read_e;
+    /**
+    game_regfile.read_f = game_CU.read_f;
+    game_regfile.read_g = game_CU.read_g;
+    game_regfile.read_h = game_CU.read_h;
+    game_regfile.read_i = game_CU.read_i;
+    game_regfile.read_j = game_CU.read_j;
+    **/
+    
+    game_regfile.data_1 = game_alu.out;
+    
+    // set up slwclk
+    slwclk.level = game_regfile.level_output;
+    
+    // set up outputs
+    if (game_regfile.lives_output == 3) {
+      lives_output = 16b0000000000000111;
+    } else if (game_regfile.lives_output == 2) {
+      lives_output = 16b0000000000000110;
+    } else if (game_regfile.lives_output == 1) {
+      lives_output = 16b0000000000000100;
+    } else {
+      lives_output = 16b0000000000000000;
+    }
+    sev_seg_incr = game_CU.sev_seg_incr;
+    sev_seg_rst = game_CU.sev_seg_rst;
+    
+    row1 = game_regfile.row1;
+    row2 = game_regfile.row2;
+    row3 = game_regfile.row3;
+    row4 = game_regfile.row4;
+    row5 = game_regfile.row5;
+    /**
+    row6 = game_regfile.row6;
+    row7 = game_regfile.row7;
+    row8 = game_regfile.row8;
+    row9 = game_regfile.row9;
+    row10 = game_regfile.row10;
+    **/
+    
+    // set up asel
+    case(game_CU.asel) {
+      b00: inputAlu_a = game_regfile.out_a;
+      b01: inputAlu_a = h5;
+      b10: inputAlu_a = buttons;
+      b11: inputAlu_a = rng.out;
+      default: inputAlu_a = 0;
+    }
+    
+    // set up bsel
+    case(game_CU.bsel) {
+      b00: inputAlu_b = game_regfile.out_b;
+      b01: inputAlu_b = h0;
+      b10: inputAlu_b = h1;
+      b11: inputAlu_b = h3;
+      default: inputAlu_b = 0;
+    }
+    
+    // set up alu
+    game_alu.a = inputAlu_a;
+    game_alu.b = inputAlu_b;
+    game_alu.alufn = game_CU.alufn;
+  }
+}

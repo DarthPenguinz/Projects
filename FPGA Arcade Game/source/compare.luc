@@ -1,0 +1,20 @@
+module compare (
+    input z,
+    input v,
+    input n,
+    input alufn[6],
+    output out[16]
+  ) {
+  // Compare unit
+
+  always {
+    out = 16b0;
+    case(alufn) {
+      6b110011: out[0] = z;
+      6b110101: out[0] = v ^ n;
+      6b110111: out[0] = z | (v ^ n);
+      default: out[0] = 0;
+    }
+    
+  }
+}

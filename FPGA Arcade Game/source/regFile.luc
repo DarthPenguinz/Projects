@@ -1,0 +1,485 @@
+module regFile (
+    input clk,  // clock
+    input rst,  // reset
+    input write_1[4], // write address 1-4
+    input write_2[4],
+    input write_3[4],
+    input write_4[4],
+    // input write_5[4],
+    // input write_6[4],
+    // input write_7[4],
+    // input write_8[4],
+    // input write_9[4],
+    input we_1, // write_enable 1-4
+    input we_2,
+    input we_3,
+    input we_4,
+    // input we_5,
+    // input we_6,
+    // input we_7,
+    // input we_8,
+    // input we_9,
+    input data_1[16], // write data 1
+    // input data_2[16],
+    // input data_3[16],
+    // input data_4[16],
+    // input data_5[16],
+    // input data_6[16],
+    // input data_7[16],
+    // input data_8[16],
+    // input data_9[16],
+    
+    input read_a[4], // read address a-e
+    input read_b[4],
+    input read_c[4],
+    input read_d[4],
+    input read_e[4],
+    // input read_f[4],
+    // input read_g[4],
+    // input read_h[4],
+    // input read_i[4],
+    // input read_j[4],
+    output out_a[16], // read data a-b
+    output out_b[16],
+    // output out_c[16],
+    // output out_d[16],
+    // output out_e[16],
+    // output out_f[16],
+    // output out_g[16],
+    // output out_h[16],
+    // output out_i[16],
+    // output out_j[16],
+    
+    output lives_output[16],
+    output level_output[16],
+    output row1[16],
+    output row2[16],
+    output row3[16],
+    output row4[16],
+    output row5[16]
+    // output row6[16],
+    // output row7[16],
+    // output row8[16],
+    // output row9[16],
+    // output row10[16]
+  ) {
+  
+  .clk(clk), .rst(rst) {
+    dff level[16];
+    dff lives[16];
+    dff button_input[16];
+    dff row_1[16];
+    dff row_2[16];
+    dff row_3[16];
+    dff row_4[16];
+    dff row_5[16];
+    // dff row_6[16];
+    // dff row_7[16];
+    // dff row_8[16];
+    // dff row_9[16];
+    // dff row_10[16];
+    dff counter[16];
+    dff temp_var[16];
+  }
+  
+  sig data_2[16];
+  sig data_3[16];
+  sig data_4[16];
+  // sig data_5[16];
+  // sig data_6[16];
+  // sig data_7[16];
+  // sig data_8[16];
+  // sig data_9[16];
+  
+  always {
+    lives_output = lives.q;
+    level_output = level.q;
+    
+    row1 = row_1.q;
+    row2 = row_2.q;
+    row3 = row_3.q;
+    row4 = row_4.q;
+    row5 = row_5.q;
+    // row6 = row_6.q;
+    // row7 = row_7.q;
+    // row8 = row_8.q;
+    // row9 = row_9.q;
+    // row10 = row_10.q;
+    
+    // read port a-j
+    case(read_a) {
+      h0: out_a = level.q;
+      h1: out_a = lives.q;
+      h2: out_a = button_input.q;
+      h3: out_a = row_1.q;
+      h4: out_a = row_2.q;
+      h5: out_a = row_3.q;
+      h6: out_a = row_4.q;
+      h7: out_a = row_5.q;
+      // h8: out_a = row_6.q;
+      // h9: out_a = row_7.q;
+      // hA: out_a = row_8.q;
+      // hB: out_a = row_9.q;
+      // hC: out_a = row_10.q;
+      h8: out_a = counter.q;
+      h9: out_a = temp_var.q;
+      default: out_a = 0;
+    }
+    
+    case(read_b) {
+      h0: out_b = level.q;
+      h1: out_b = lives.q;
+      h2: out_b = button_input.q;
+      h3: out_b = row_1.q;
+      h4: out_b = row_2.q;
+      h5: out_b = row_3.q;
+      h6: out_b = row_4.q;
+      h7: out_b = row_5.q;
+      // h8: out_b = row_6.q;
+      // h9: out_b = row_7.q;
+      // hA: out_b = row_8.q;
+      // hB: out_b = row_9.q;
+      // hC: out_b = row_10.q;
+      h8: out_b = counter.q;
+      h9: out_b = temp_var.q;
+      default: out_b = 0;
+    }
+    
+    case(read_c) {
+      h0: data_2 = level.q;
+      h1: data_2 = lives.q;
+      h2: data_2 = button_input.q;
+      h3: data_2 = row_1.q;
+      h4: data_2 = row_2.q;
+      h5: data_2 = row_3.q;
+      h6: data_2 = row_4.q;
+      h7: data_2 = row_5.q;
+      // h8: data_2 = row_6.q;
+      // h9: data_2 = row_7.q;
+      // hA: data_2 = row_8.q;
+      // hB: data_2 = row_9.q;
+      // hC: data_2 = row_10.q;
+      h8: data_2 = counter.q;
+      h9: data_2 = temp_var.q;
+      default: data_2 = 0;
+    }
+    
+    case(read_d) {
+      h0: data_3 = level.q;
+      h1: data_3 = lives.q;
+      h2: data_3 = button_input.q;
+      h3: data_3 = row_1.q;
+      h4: data_3 = row_2.q;
+      h5: data_3 = row_3.q;
+      h6: data_3 = row_4.q;
+      h7: data_3 = row_5.q;
+      // h8: data_3 = row_6.q;
+      // h9: data_3 = row_7.q;
+      // hA: data_3 = row_8.q;
+      // hB: data_3 = row_9.q;
+      // hC: data_3 = row_10.q;
+      h8: data_3 = counter.q;
+      h9: data_3 = temp_var.q;
+      default: data_3 = 0;
+    }
+    
+    case(read_e) {
+      h0: data_4 = level.q;
+      h1: data_4 = lives.q;
+      h2: data_4 = button_input.q;
+      h3: data_4 = row_1.q;
+      h4: data_4 = row_2.q;
+      h5: data_4 = row_3.q;
+      h6: data_4 = row_4.q;
+      h7: data_4 = row_5.q;
+      // h8: data_4 = row_6.q;
+      // h9: data_4 = row_7.q;
+      // hA: data_4 = row_8.q;
+      // hB: data_4 = row_9.q;
+      // hC: data_4 = row_10.q;
+      h8: data_4 = counter.q;
+      h9: data_4 = temp_var.q;
+      default: data_4 = 0;
+    }
+    /**
+    case(read_f) {
+      h0: data_5 = level.q;
+      h1: data_5 = lives.q;
+      h2: data_5 = button_input.q;
+      h3: data_5 = row_1.q;
+      h4: data_5 = row_2.q;
+      h5: data_5 = row_3.q;
+      h6: data_5 = row_4.q;
+      h7: data_5 = row_5.q;
+      h8: data_5 = row_6.q;
+      h9: data_5 = row_7.q;
+      hA: data_5 = row_8.q;
+      hB: data_5 = row_9.q;
+      hC: data_5 = row_10.q;
+      hD: data_5 = counter.q;
+      hE: data_5 = temp_var.q;
+      default: data_5 = 0;
+    }
+    
+    case(read_g) {
+      h0: data_6 = level.q;
+      h1: data_6 = lives.q;
+      h2: data_6 = button_input.q;
+      h3: data_6 = row_1.q;
+      h4: data_6 = row_2.q;
+      h5: data_6 = row_3.q;
+      h6: data_6 = row_4.q;
+      h7: data_6 = row_5.q;
+      h8: data_6 = row_6.q;
+      h9: data_6 = row_7.q;
+      hA: data_6 = row_8.q;
+      hB: data_6 = row_9.q;
+      hC: data_6 = row_10.q;
+      hD: data_6 = counter.q;
+      hE: data_6 = temp_var.q;
+      default: data_6 = 0;
+    }
+    
+    case(read_h) {
+      h0: data_7 = level.q;
+      h1: data_7 = lives.q;
+      h2: data_7 = button_input.q;
+      h3: data_7 = row_1.q;
+      h4: data_7 = row_2.q;
+      h5: data_7 = row_3.q;
+      h6: data_7 = row_4.q;
+      h7: data_7 = row_5.q;
+      h8: data_7 = row_6.q;
+      h9: data_7 = row_7.q;
+      hA: data_7 = row_8.q;
+      hB: data_7 = row_9.q;
+      hC: data_7 = row_10.q;
+      hD: data_7 = counter.q;
+      hE: data_7 = temp_var.q;
+      default: data_7 = 0;
+    }
+    
+    case(read_i) {
+      h0: data_8 = level.q;
+      h1: data_8 = lives.q;
+      h2: data_8 = button_input.q;
+      h3: data_8 = row_1.q;
+      h4: data_8 = row_2.q;
+      h5: data_8 = row_3.q;
+      h6: data_8 = row_4.q;
+      h7: data_8 = row_5.q;
+      h8: data_8 = row_6.q;
+      h9: data_8 = row_7.q;
+      hA: data_8 = row_8.q;
+      hB: data_8 = row_9.q;
+      hC: data_8 = row_10.q;
+      hD: data_8 = counter.q;
+      hE: data_8 = temp_var.q;
+      default: data_8 = 0;
+    }
+    
+    case(read_j) {
+      h0: data_9 = level.q;
+      h1: data_9 = lives.q;
+      h2: data_9 = button_input.q;
+      h3: data_9 = row_1.q;
+      h4: data_9 = row_2.q;
+      h5: data_9 = row_3.q;
+      h6: data_9 = row_4.q;
+      h7: data_9 = row_5.q;
+      h8: data_9 = row_6.q;
+      h9: data_9 = row_7.q;
+      hA: data_9 = row_8.q;
+      hB: data_9 = row_9.q;
+      hC: data_9 = row_10.q;
+      hD: data_9 = counter.q;
+      hE: data_9 = temp_var.q;
+      default: data_9 = 0;
+    }
+    **/
+    // write port 1 - 9
+    if (we_1) {
+      case(write_1) {
+        h0: level.d = data_1;
+        h1: lives.d = data_1;
+        h2: button_input.d = data_1;
+        h3: row_1.d = data_1;
+        h4: row_2.d = data_1;
+        h5: row_3.d = data_1;
+        h6: row_4.d = data_1;
+        h7: row_5.d = data_1;
+        // h8: row_6.d = data_1;
+        // h9: row_7.d = data_1;
+        // hA: row_8.d = data_1;
+        // hB: row_9.d = data_1;
+        // hC: row_10.d = data_1;
+        h8: counter.d = data_1;
+        h9: temp_var.d = data_1;
+      }
+    }
+    
+    if (we_2) {
+      case(write_2) {
+        h0: level.d = data_2;
+        h1: lives.d = data_2;
+        h2: button_input.d = data_2;
+        h3: row_1.d = data_2;
+        h4: row_2.d = data_2;
+        h5: row_3.d = data_2;
+        h6: row_4.d = data_2;
+        h7: row_5.d = data_2;
+        // h8: row_6.d = data_2;
+        // h9: row_7.d = data_2;
+        // hA: row_8.d = data_2;
+        // hB: row_9.d = data_2;
+        // hC: row_10.d = data_2;
+        h8: counter.d = data_2;
+        h9: temp_var.d = data_2;
+      }
+    }    
+    
+    if (we_3) {
+      case(write_3) {
+        h0: level.d = data_3;
+        h1: lives.d = data_3;
+        h2: button_input.d = data_3;
+        h3: row_1.d = data_3;
+        h4: row_2.d = data_3;
+        h5: row_3.d = data_3;
+        h6: row_4.d = data_3;
+        h7: row_5.d = data_3;
+        // h8: row_6.d = data_3;
+        // h9: row_7.d = data_3;
+        // hA: row_8.d = data_3;
+        // hB: row_9.d = data_3;
+        // hC: row_10.d = data_3;
+        h8: counter.d = data_3;
+        h9: temp_var.d = data_3;
+      }
+    }
+    
+    if (we_4) {
+      case(write_4) {
+        h0: level.d = data_4;
+        h1: lives.d = data_4;
+        h2: button_input.d = data_4;
+        h3: row_1.d = data_4;
+        h4: row_2.d = data_4;
+        h5: row_3.d = data_4;
+        h6: row_4.d = data_4;
+        h7: row_5.d = data_4;
+        // h8: row_6.d = data_4;
+        // h9: row_7.d = data_4;
+        // hA: row_8.d = data_4;
+        // hB: row_9.d = data_4;
+        // hC: row_10.d = data_4;
+        h8: counter.d = data_4;
+        h9: temp_var.d = data_4;
+      }
+    }
+    /**
+    if (we_5) {
+      case(write_5) {
+        h0: level.d = data_5;
+        h1: lives.d = data_5;
+        h2: button_input.d = data_5;
+        h3: row_1.d = data_5;
+        h4: row_2.d = data_5;
+        h5: row_3.d = data_5;
+        h6: row_4.d = data_5;
+        h7: row_5.d = data_5;
+        h8: row_6.d = data_5;
+        h9: row_7.d = data_5;
+        hA: row_8.d = data_5;
+        hB: row_9.d = data_5;
+        hC: row_10.d = data_5;
+        hD: counter.d = data_5;
+        hE: temp_var.d = data_5;
+      }
+    }
+    
+    if (we_6) {
+      case(write_6) {
+        h0: level.d = data_6;
+        h1: lives.d = data_6;
+        h2: button_input.d = data_6;
+        h3: row_1.d = data_6;
+        h4: row_2.d = data_6;
+        h5: row_3.d = data_6;
+        h6: row_4.d = data_6;
+        h7: row_5.d = data_6;
+        h8: row_6.d = data_6;
+        h9: row_7.d = data_6;
+        hA: row_8.d = data_6;
+        hB: row_9.d = data_6;
+        hC: row_10.d = data_6;
+        hD: counter.d = data_6;
+        hE: temp_var.d = data_6;
+      }
+    }
+
+    if (we_7) {
+      case(write_7) {
+        h0: level.d = data_7;
+        h1: lives.d = data_7;
+        h2: button_input.d = data_7;
+        h3: row_1.d = data_7;
+        h4: row_2.d = data_7;
+        h5: row_3.d = data_7;
+        h6: row_4.d = data_7;
+        h7: row_5.d = data_7;
+        h8: row_6.d = data_7;
+        h9: row_7.d = data_7;
+        hA: row_8.d = data_7;
+        hB: row_9.d = data_7;
+        hC: row_10.d = data_7;
+        hD: counter.d = data_7;
+        hE: temp_var.d = data_7;
+      }
+    }
+    
+    if (we_8) {
+      case(write_8) {
+        h0: level.d = data_8;
+        h1: lives.d = data_8;
+        h2: button_input.d = data_8;
+        h3: row_1.d = data_8;
+        h4: row_2.d = data_8;
+        h5: row_3.d = data_8;
+        h6: row_4.d = data_8;
+        h7: row_5.d = data_8;
+        h8: row_6.d = data_8;
+        h9: row_7.d = data_8;
+        hA: row_8.d = data_8;
+        hB: row_9.d = data_8;
+        hC: row_10.d = data_8;
+        hD: counter.d = data_8;
+        hE: temp_var.d = data_8;
+      }
+    }
+    
+    if (we_9) {
+      case(write_9) {
+        h0: level.d = data_9;
+        h1: lives.d = data_9;
+        h2: button_input.d = data_9;
+        h3: row_1.d = data_9;
+        h4: row_2.d = data_9;
+        h5: row_3.d = data_9;
+        h6: row_4.d = data_9;
+        h7: row_5.d = data_9;
+        h8: row_6.d = data_9;
+        h9: row_7.d = data_9;
+        hA: row_8.d = data_9;
+        hB: row_9.d = data_9;
+        hC: row_10.d = data_9;
+        hD: counter.d = data_9;
+        hE: temp_var.d = data_9;
+      }
+    }
+    **/
+  }
+
+    
+
+

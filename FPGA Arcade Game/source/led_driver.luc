@@ -1,0 +1,136 @@
+module led_driver (
+    input clk,  // clock
+    input rst,  // reset
+    input row1[16],
+    input row2[16],
+    input row3[16],
+    input row4[16],
+    input row5[16],
+    /**
+    input row6[16],
+    input row7[16],
+    input row8[16],
+    input row9[16],
+    input row10[16],
+    **/
+    input lives[3],
+    output led1,
+    output led2,
+    output led3,
+    output led4,
+    output led5,
+    /**
+    output led6,
+    output led7,
+    output led8,
+    output led9,
+    output led10,
+    **/
+    output ledlives
+  ) {
+  
+  .clk(clk), .rst(rst) {
+    ws2812b_driver led_strip_1 (#PIXEL_COUNT(16));
+    ws2812b_driver led_strip_2 (#PIXEL_COUNT(16));
+    ws2812b_driver led_strip_3 (#PIXEL_COUNT(16));
+    ws2812b_driver led_strip_4 (#PIXEL_COUNT(16));
+    ws2812b_driver led_strip_5 (#PIXEL_COUNT(16));
+    /**
+    ws2812b_driver led_strip_6 (#PIXEL_COUNT(16));
+    ws2812b_driver led_strip_7 (#PIXEL_COUNT(16));
+    ws2812b_driver led_strip_8 (#PIXEL_COUNT(16));
+    ws2812b_driver led_strip_9 (#PIXEL_COUNT(16));
+    ws2812b_driver led_strip_10 (#PIXEL_COUNT(16));
+    **/
+    ws2812b_driver led_strip_lives (#PIXEL_COUNT(3));
+  }
+
+  always {
+    led_strip_1.update=1;
+    if (row1[led_strip_1.pixel] == 1) {
+      led_strip_1.color = hFFFFFF;
+    } else {
+      led_strip_1.color = h000000;
+    }
+    led1 = led_strip_1.led;
+    
+    led_strip_2.update=1;
+    if (row2[led_strip_2.pixel] == 1) {
+      led_strip_2.color = hFFFFFF;
+    } else {
+      led_strip_2.color = h000000;
+    }
+    led2 = led_strip_2.led;
+    
+    led_strip_3.update=1;
+    if (row3[led_strip_3.pixel] == 1) {
+      led_strip_3.color = hFFFFFF;
+    } else {
+      led_strip_3.color = h000000;
+    }
+    led3 = led_strip_3.led;
+    
+    led_strip_4.update=1;
+    if (row4[led_strip_4.pixel] == 1) {
+      led_strip_4.color = hFFFFFF;
+    } else {
+      led_strip_4.color = h000000;
+    }
+    led4 = led_strip_4.led;
+    
+    led_strip_5.update=1;
+    if (row5[led_strip_5.pixel] == 1) {
+      led_strip_5.color = hFFFFFF;
+    } else {
+      led_strip_5.color = h000000;
+    }
+    led5 = led_strip_5.led;
+    /**
+    led_strip_6.update=1;
+    if (row6[led_strip_6.pixel] == 1) {
+      led_strip_6.color = hFFFFFF;
+    } else {
+      led_strip_6.color = h000000;
+    }
+    led6 = led_strip_6.led;
+    
+    led_strip_7.update=1;
+    if (row7[led_strip_7.pixel] == 1) {
+      led_strip_7.color = hFFFFFF;
+    } else {
+      led_strip_7.color = h000000;
+    }
+    led7 = led_strip_7.led;
+    
+    led_strip_8.update=1;
+    if (row8[led_strip_8.pixel] == 1) {
+      led_strip_8.color = hFFFFFF;
+    } else {
+      led_strip_8.color = h000000;
+    }
+    led8 = led_strip_8.led;
+    
+    led_strip_9.update=1;
+    if (row9[led_strip_9.pixel] == 1) {
+      led_strip_9.color = hFFFFFF;
+    } else {
+      led_strip_9.color = h000000;
+    }
+    led9 = led_strip_9.led;
+    
+    led_strip_10.update=1;
+    if (row10[led_strip_10.pixel] == 1) {
+      led_strip_10.color = hFFFFFF;
+    } else {
+      led_strip_10.color = h000000;
+    }
+    led10 = led_strip_10.led;
+    **/
+    led_strip_lives.update=1;
+    if (lives[led_strip_lives.pixel] == 1) {
+      led_strip_lives.color = hFFFFFF;
+    } else {
+      led_strip_lives.color = h000000;
+    }
+    ledlives = led_strip_lives.led;
+}
